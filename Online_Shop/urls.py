@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path,include
-from shop.views import ProductViewset
+from shop.views import ProductViewset, CartViewset, CreateOrderViewset, go_home
 from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import(
@@ -23,14 +23,17 @@ schema_view = get_schema_view(
 )
 
 router = DefaultRouter()
-router.register('products', ProductViewset)
+router.register('products', ProductViewset, basename='product')
+router.register('cart', CartViewset, basename='cart')
+router.register('create_order', CreateOrderViewset, basename='create_order')
 
 urlpatterns = [
+    path('', go_home),
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
     path('api/', include('shop.urls')),
     path('token/', TokenObtainPairView.as_view()),
     path('token/refresh', TokenRefreshView.as_view()),
     path('token/verify', TokenVerifyView.as_view()),
     path('api/swagger/', schema_view.with_ui('swagger'), name='schema_swagger')
 ]
+urlpatterns += router.urls

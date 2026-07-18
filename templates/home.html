@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>داشبورد API فروشگاه</title>
+    <style>
+        body {
+            font-family: "Vazirmatn", sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #4a6cf7;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #4a6cf7;
+            padding-bottom: 8px;
+        }
+
+        .api-box {
+            background: #f9fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e6ed;
+        }
+
+        .url {
+            background: #eef2ff;
+            padding: 8px;
+            border-radius: 6px;
+            direction: ltr;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    داشبورد API پروژه فروشگاه
+</header>
+
+<div class="container">
+
+    <h2>احراز هویت (JWT)</h2>
+
+    <div class="api-box">
+        <p><strong>دریافت توکن:</strong></p>
+        <p class="url">POST /token/</p>
+    </div>
+
+    <div class="api-box">
+        <p><strong>رفرش توکن:</strong></p>
+        <p class="url">POST /token/refresh/</p>
+    </div>
+
+    <div class="api-box">
+        <p><strong>تأیید توکن:</strong></p>
+        <p class="url">POST /token/verify/</p>
+    </div>
+
+    <h2>محصولات</h2>
+
+    <div class="api-box">
+        <p><strong>لیست محصولات:</strong></p>
+        <p class="url">GET /products/</p>
+    </div>
+
+    <div class="api-box">
+        <p><strong>افزودن محصول:</strong></p>
+        <p class="url">POST /products/</p>
+    </div>
+
+    <h2>سبد خرید</h2>
+
+    <div class="api-box">
+        <p><strong>افزودن به سبد خرید:</strong></p>
+        <p class="url">POST /cart/add/</p>
+    </div>
+
+    <h2>صفحات معمولی (shop.urls)</h2>
+
+    <div class="api-box">
+        <p><strong>خانه:</strong></p>
+        <p class="url">GET /api/home/</p>
+    </div>
+
+    <div class="api-box">
+        <p><strong>مشاهده سبد خرید:</strong></p>
+        <p class="url">GET /api/view_cart/</p>
+    </div>
+
+    <div class="api-box">
+        <p><strong>ساخت سفارش:</strong></p>
+        <p class="url">POST /create_order/</p>
+    </div>
+
+    <div class="api-box">
+        <p><strong>سفارش‌های فروشنده:</strong></p>
+        <p class="url">GET /api/seller_order/</p>
+    </div>
+
+    <div class="api-box">
+        <p><strong>ثبت نظر:</strong></p>
+        <p class="url">POST /api/review/</p>
+    </div>
+
+    <div class="api-box">
+        <p><strong>نمایش نظرات محصول:</strong></p>
+        <p class="url">GET /api/ProductReviewsView/</p>
+    </div>
+
+    <h2>Swagger</h2>
+
+    <div class="api-box">
+        <p><strong>مستندات API:</strong></p>
+        <p class="url">GET /api/swagger/</p>
+    </div>
+
+</div>
+
+</body>
+</html>

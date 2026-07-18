@@ -1,14 +1,23 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import *
 from .serializers import *
 from .permissions import IsSellerOrReadOnly
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
+
+def Home(request):
+    return render(request,'home.html')
+
+def go_home(request):
+    return redirect('/api/home/')
+
+
 class ProductViewset(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -31,28 +40,31 @@ class ProductViewset(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(seller = self.request.user)
 
-@api_view(["POST"])
-def add_to_cart(request):
-    if not request.user.is_authenticated:
-        return Response({"message": "باید وارد شوید"})
-    product_id = request.data.get("product")
-    quantity = int(request.data.get("quantity", 1))
+class CartViewset(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
 
-    try:
-        product = product.objects.get(id=product_id)
-    except product.DoesNotExist:
-        return Response({"message": "کالا پیدا نشد"})
-    
-    item = CartItem.objects.filter(user=request.user, product=product)
+    @action(detail=False, methods=["POST"])
+    def add(self, request):
+        product_id = request.data.get("product")
+        quantity = int(request.data.get("quantity", 1))
 
-    if item is None:
-        CartItem.objects.create(user=request.user, product=product)
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response({"message": "کالا پیدا نشد"}, status=400)
+        
+        if product.stock < quantity:
+            return Response({"message": "موجودی کافی نیست"})
+        item, created = CartItem.objects.get_or_create(
+            user = request.user,
+            product = product
+        )
+        item.quantity += quantity
+        product.stock - quantity
+        item.save()
+        product.save()
 
-    if item.quantity + quantity > product.stock:
-        return Response({"message": "موجودی کافی نیست"}, status=400)
-    item.quantity += quantity
-    item.save()
-    return Response({"message": "کالا به سبد خرید اضافه شد"}, status=200)
+        return Response({"message": "به سبد خرید اضافه شد"})
 
 @api_view(["GET"])
 def view_cart(request):
@@ -60,27 +72,27 @@ def view_cart(request):
     serializer = CartItemSerializer(items, many=True)
     return Response(serializer.data)
 
-@api_view(["POST"])
-def create_order(request):
-    cart_items = CartItem.objects.filter(user=request.user)
+class CreateOrderViewset(viewsets.ViewSet):
+    def create(self, request):
+        cart_items = CartItem.objects.filter(user=request.user)
 
-    if not cart_items.exists:
-        return Response({"message": "سبد خرید خالی می باشد"}, status=400)
+        if not cart_items.exists:
+            return Response({"message": "سبد خرید خالی می باشد"}, status=400)
 
-    total = sum(item.product.price * item.quantity for item in cart_items)
-    order = Order.objects.create(user=request.user, total_price=total)
+        total = sum(item.product.price * item.quantity for item in cart_items)
+        order = Order.objects.create(user=request.user, total_price=total)
 
-    for item in cart_items:
-        OrderItem.objects.create(
-            order = order,
-            product = item.product,
-            quantity = item.quantity,
-            price = item.product.price
-        )
-    
-    cart_items.delete()
+        for item in cart_items:
+            OrderItem.objects.create(
+                order = order,
+                product = item.product,
+                quantity = item.quantity,
+                price = item.product.price
+            )
+        
+        cart_items.delete()
 
-    return Response({"message":"سفارش ثبت شد"}, status=200)
+        return Response({"message":"سفارش ثبت شد"}, status=200)
 
 @api_view(["GET"])
 def seller_order(request):

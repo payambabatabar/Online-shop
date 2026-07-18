@@ -7,8 +7,15 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers
+    category = CategorySerializer
     seller = serializers.ReadOnlyField(source="seller.username")
+
+    def validate(self, attrs):
+        if attrs['stock'] < 0:
+            attrs['stock'] = 0
+        if attrs['price'] < 0:
+            attrs['price'] = 0
+        return attrs
 
     class Meta:
         model = Product
@@ -17,7 +24,13 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class CartItemSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source = 'user.username')
-    product = serializers
+    product = ProductSerializer
+
+    def validate(self, attrs):
+        if attrs['quantity'] < 0:
+            attrs['quantity'] = 1
+        return attrs
+        
 
     class Meta:
         model = CartItem
@@ -25,6 +38,13 @@ class CartItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    
+    def validate(self, attrs):
+        if attrs['quantity'] < 0:
+            attrs['quantity'] = 1
+        return attrs
+        
+    
     class Meta:
         model = OrderItem
         fields = "__all__"
